@@ -1,4 +1,5 @@
 class Sudoku {
+    
     /*
     size
     board
@@ -11,19 +12,18 @@ class Sudoku {
     */
 
     constructor() {
-        this.cor = 0;                   // Corretly placed
+        this.cor = 0;                   // Correctly placed
         this.size = 9;                  // Size of the board
-        this.treshhold = 1;
-        this.possibilities = [1,2,3,4,5,6,7,8,9];   // Placing possibilities
+        this.treshhold = (this.size * this.size) / 2;   // Number of empty numbers
+        this.possibilities = [1,2,3,4,5,6,7,8,9];       // Possible numbers to place
 
         this.create_empty();            // Create a board of 0's
-        this.generate();                // Generate a proper sudoku
+        this.generate();                // Generate a unique sudoku
 
-        this.solved = this.copy();      // Save the solved board in another variable
+        this.solved = this.copy();      // Copy and save solution
 
-        this.harden();                  // Remove as many numbers as possible
-
-        this.print_board();             // Show the board
+        this.harden();                  // Remove random numbers from board
+        this.print();                   // Show board
     }
 
     create_empty() {
@@ -38,17 +38,17 @@ class Sudoku {
 
     possible(x, y, n) {
 
-        // check row
+        // row
         for (var i = 0; i < this.size; i++)
             if (this.board[y][i] == n)
                 return false;
 
-        // check column
+        // column
         for (var i = 0; i < this.size; i++)
             if (this.board[i][x] == n)
                 return false;
 
-        // check box
+        // box
         var sx = Math.floor(x / 3) * 3;
         var sy = Math.floor(y / 3) * 3;
 
@@ -65,21 +65,17 @@ class Sudoku {
         for (var y = 0; y < this.size; y++) {
             for (var x = 0; x < this.size; x++) {
 
-                // Create all possibilities for this row
                 var moznosti = [...this.possibilities]
                 for (var i = 0; i < moznosti.length; i++)
                     if (!this.possible(x, y, moznosti[i]))
                         moznosti.splice(i, 1);
 
-                // Pick a random possibility
                 var index = Math.floor(Math.random() * moznosti.length);
                 var n = moznosti[index];
                 moznosti.splice(index, 1);
 
                 var error = false;
 
-                // If it is possible, place it, else remove it
-                // If there are no more possibilities, start this row from the beging
                 while (!this.possible(x, y, n)) {
                     if (moznosti.length > 0) {
                         index = Math.floor(Math.random() * moznosti.length);
@@ -102,7 +98,7 @@ class Sudoku {
 
     }
 
-    print_board() {
+    print() {
         var str = "";
 
         for (var y = 0; y < this.size; y++) {
