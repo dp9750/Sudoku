@@ -1,5 +1,6 @@
-class Board {
+class Sudoku {
 
+    /*
     constructor(field) {
         this.field = field;         // The game field
         this.size = field.length;   // Size of the field
@@ -7,6 +8,76 @@ class Board {
         this.solved = [];           // The solved field
         this.copy();                // Copy field
         this.solve(this.solved);    // Solve the copied field
+    }
+    */
+
+    
+   constructor() {
+        this.size = 9;
+
+        // A solvable sudoku
+        this.field = [
+            [9,7,2, 4,3,8, 6,5,1],
+            [6,4,1, 2,7,5, 3,8,9],
+            [5,8,3, 6,9,1, 7,4,2],
+            [2,9,4, 8,5,3, 1,7,6],
+            [1,5,6, 7,2,9, 8,3,4],
+            [7,3,8, 1,4,6, 2,9,5],
+            [3,6,5, 9,1,7, 4,2,8],
+            [8,2,9, 3,6,4, 5,1,7],
+            [4,1,7, 5,8,2, 9,6,3]
+        ];
+
+        this.generate();
+
+        // console.log(this.field);
+   }
+   
+
+    // Generate sudoku
+    generate() {
+        
+        // Random number of permutations
+        var rnd = Math.floor((Math.random() * 1000) + 1);
+        var r = Math.random(100);
+
+        // Shuffle 'rnd' times
+        for (var i = 0; i < rnd; i++) 
+            for (var y = 0; y < this.size; y++)
+                this.field[y] = this.shuffle(this.field[y], r);
+
+        // Remove a random number from it
+        // If not solveable anymore, quit & put it back
+        var x = Math.floor((Math.random() * this.size)), 
+            y = Math.floor((Math.random() * this.size)),
+            val = this.field[y][x];
+
+        while (this.is_solvable() == true) {
+
+            while(this.field[y][x] == 0) {
+                x = Math.floor((Math.random() * this.size));
+                y = Math.floor((Math.random() * this.size));
+            }
+
+            val = this.field[y][x];
+            this.field[y][x] = 0;
+
+        }
+
+        this.field[y][x] = val;
+
+    }
+
+    shuffle(a, r) {
+        var counter = a.length;
+        while (counter > 0) {
+            var index = Math.floor(r * counter);
+            counter--;
+            var temp = a[counter];
+            a[counter] = a[index];
+            a[index] = temp;
+        }
+        return a;
     }
 
     print_field() {
@@ -16,7 +87,7 @@ class Board {
             str += "<tr>";
             for (var x = 0; x < this.size; x++) 
                 if (this.field[y][x] != 0)
-                    str += "<td><input type='number' data-y='" + y + "' data-x='" + x + "' value='" + this.field[y][x] + "'></td>";
+                    str += "<td><input type='number' data-y='" + y + "' data-x='" + x + "' value='" + this.field[y][x] + "' disabled></td>";
                 else 
                     str += "<td><input type='number' data-y='" + y + "' data-x='" + x + "'></td>";
             str += "</tr>";
@@ -26,7 +97,7 @@ class Board {
     }
 
     is_possible(board, row, col, k) {
-        for (let i = 0; i < 9; i++) {
+        for (var i = 0; i < 9; i++) {
             const m = 3 * Math.floor(row / 3) + Math.floor(i / 3);
             const n = 3 * Math.floor(col / 3) + i % 3;
             if (board[row][i] == k || board[i][col] == k || board[m][n] == k) {
@@ -62,6 +133,25 @@ class Board {
        return true;
     }
 
+    is_solvable() {
+
+        var solved = [...this.field];
+        this.solve(solved);
+
+        console.log(this.field);
+        console.log(solved);
+
+        if (!solved)
+            return false;
+
+        for (var y = 0; y < this.size; y++)
+            for (var x = 0; x < this.size; x++)
+                if (solved[y][x] === 0)
+                    return false;
+
+        return true;
+    }
+
     select_field(y, x) {
         this.y = y;
         this.x = x;
@@ -82,6 +172,10 @@ class Board {
 
     is_valid() {
         return this.field[this.y][this.x] == this.solved[this.y][this.x];
+    }
+
+    set_final() {
+        this.obj.prop('disabled', true);
     }
 
     set_error() {
