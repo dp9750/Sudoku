@@ -32,7 +32,7 @@ class Sudoku {
         for (var y = 0; y < this.size; y++) {
             this.board[y] = [];
             for (var x = 0; x < this.size; x++)
-                this.board[y][x] = 0;
+                this.board[y][x] = new Cell(0);
         }
     }
 
@@ -40,12 +40,12 @@ class Sudoku {
 
         // row
         for (var i = 0; i < this.size; i++)
-            if (this.board[y][i] == n)
+            if (this.board[y][i].val == n)
                 return false;
 
         // column
         for (var i = 0; i < this.size; i++)
-            if (this.board[i][x] == n)
+            if (this.board[i][x].val == n)
                 return false;
 
         // box
@@ -54,7 +54,7 @@ class Sudoku {
 
         for (var j = 0; j < 3; j++) 
             for (var i = 0; i < 3; i++) 
-                if (this.board[sy + j][sx + i] == n)
+                if (this.board[sy + j][sx + i].val == n)
                     return false;
 
         return true;
@@ -84,14 +84,14 @@ class Sudoku {
                     } else {
                         x = -1;
                         for (var i = 0; i < this.size; i++)
-                            this.board[y][i] = 0;
+                            this.board[y][i].set_val(0);
                         error = true;
                         break;
                     }
                 }
 
                 if (!error)
-                    this.board[y][x] = n;
+                    this.board[y][x].set_val(n);
 
             }
         }
@@ -104,8 +104,8 @@ class Sudoku {
         for (var y = 0; y < this.size; y++) {
             str += "<tr>";
             for (var x = 0; x < this.size; x++) 
-                if (this.board[y][x] != 0)
-                    str += "<td><input type='number' data-y='" + y + "' data-x='" + x + "' value='" + this.board[y][x] + "' disabled></td>";
+                if (this.board[y][x].val != 0)
+                    str += "<td><input type='number' data-y='" + y + "' data-x='" + x + "' value='" + this.board[y][x].val + "' disabled></td>";
                 else 
                     str += "<td><input type='number' data-y='" + y + "' data-x='" + x + "'></td>";
             str += "</tr>";
@@ -123,12 +123,12 @@ class Sudoku {
             var x = Math.floor(Math.random() * this.size);
             var y = Math.floor(Math.random() * this.size);
 
-            while (this.board[y][x] == 0) {
+            while (this.board[y][x].val == 0) {
                 x = Math.floor(Math.random() * this.size);
                 y = Math.floor(Math.random() * this.size);
             }
 
-            this.board[y][x] = 0;
+            this.board[y][x].set_val(0);
             copy = this.copy();
             empty++;
 
@@ -149,14 +149,14 @@ class Sudoku {
     solve(board) {
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
-                if (board[i][j] == 0) {
+                if (board[i][j].val == 0) {
                     for (let k = 1; k <= 9; k++) {
                         if (this.is_possible(board, i, j, k)) {
-                            board[i][j] = k;
+                            board[i][j].set_val(k);
                             if (this.solve(board)) {
                                 return true;
                             } else {
-                                board[i][j] = 0;
+                                board[i][j].set_val(0);
                             }
                         }
                     }
@@ -172,7 +172,7 @@ class Sudoku {
         for (var y = 0; y < this.size; y++) {
             copy[y] = [];
             for (var x = 0; x < this.size; x++) 
-                copy[y][x] = this.board[y][x];
+                copy[y][x] = new Cell(this.board[y][x].val);
         }
         return copy;
     }
@@ -188,23 +188,17 @@ class Sudoku {
     }
 
     set_value(val) {
-        this.board[this.y][this.x] = parseInt(val);
-
-        if (val == 0)
-            val = "";
-        this.obj.val(val);
+        this.board[this.y][this.x].set_val(parseInt(val));
     }
 
     is_valid() {
-        return this.board[this.y][this.x] == this.solved[this.y][this.x];
+        return this.board[this.y][this.x].val == this.solved[this.y][this.x].val;
     }
 
     set_final() {
         this.cor++;
         this.obj.prop('disabled', true);
 
-        console.log(this.cor);
-        console.log((this.size * this.size));
         if (this.cor == this.treshhold) {
             alert("Gotovo!!!");
         }

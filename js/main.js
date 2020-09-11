@@ -29,4 +29,8 @@ $(document).ready(() => {
 
     });
 
+    $("#restart").click(() => {
+        sudoku = new Sudoku();
+    });
+
 });
