@@ -1,5 +1,5 @@
 class Sudoku {
-    
+
     /*
     size
     board
@@ -14,7 +14,7 @@ class Sudoku {
     constructor() {
         this.cor = 0;                   // Correctly placed
         this.size = 9;                  // Size of the board
-        this.treshhold = (this.size * this.size) / 2;   // Number of empty numbers
+        this.treshhold = 40;            // Number of empty numbers
         this.possibilities = [1,2,3,4,5,6,7,8,9];       // Possible numbers to place
 
         this.create_empty();            // Create a board of 0's
@@ -29,31 +29,30 @@ class Sudoku {
     create_empty() {
         this.board = [];
 
-        for (var y = 0; y < this.size; y++) {
+        for (let y = 0; y < 9; y++) {
             this.board[y] = [];
-            for (var x = 0; x < this.size; x++)
+            for (let x = 0; x < 9; x++)
                 this.board[y][x] = new Cell(0);
         }
     }
 
     possible(x, y, n) {
-
         // row
-        for (var i = 0; i < this.size; i++)
+        for (let i = 0; i < 9; i++)
             if (this.board[y][i].val == n)
                 return false;
 
         // column
-        for (var i = 0; i < this.size; i++)
+        for (let i = 0; i < 9; i++)
             if (this.board[i][x].val == n)
                 return false;
 
         // box
-        var sx = Math.floor(x / 3) * 3;
-        var sy = Math.floor(y / 3) * 3;
+        let sx = Math.floor(x / 3) * 3;
+        let sy = Math.floor(y / 3) * 3;
 
-        for (var j = 0; j < 3; j++) 
-            for (var i = 0; i < 3; i++) 
+        for (let j = 0; j < 3; j++)
+            for (let i = 0; i < 3; i++)
                 if (this.board[sy + j][sx + i].val == n)
                     return false;
 
@@ -62,28 +61,28 @@ class Sudoku {
 
     generate() {
 
-        for (var y = 0; y < this.size; y++) {
-            for (var x = 0; x < this.size; x++) {
+        for (let y = 0; y < 9; y++) {
+            for (let x = 0; x < 9; x++) {
 
-                var moznosti = [...this.possibilities]
-                for (var i = 0; i < moznosti.length; i++)
-                    if (!this.possible(x, y, moznosti[i]))
-                        moznosti.splice(i, 1);
+                let possibilities = [...this.possibilities]
+                for (let i = 0; i < possibilities.length; i++)
+                    if (!this.possible(x, y, possibilities[i]))
+                        possibilities.splice(i, 1);
 
-                var index = Math.floor(Math.random() * moznosti.length);
-                var n = moznosti[index];
-                moznosti.splice(index, 1);
+                let index = Math.floor(Math.random() * possibilities.length);
+                let n = possibilities[index];
+                possibilities.splice(index, 1);
 
-                var error = false;
+                let error = false;
 
                 while (!this.possible(x, y, n)) {
-                    if (moznosti.length > 0) {
-                        index = Math.floor(Math.random() * moznosti.length);
-                        n = moznosti[index];
-                        moznosti.splice(index, 1);
+                    if (possibilities.length > 0) {
+                        index = Math.floor(Math.random() * possibilities.length);
+                        n = possibilities[index];
+                        possibilities.splice(index, 1);
                     } else {
                         x = -1;
-                        for (var i = 0; i < this.size; i++)
+                        for (let i = 0; i < 9; i++)
                             this.board[y][i].set_val(0);
                         error = true;
                         break;
@@ -99,14 +98,14 @@ class Sudoku {
     }
 
     print() {
-        var str = "";
+        let str = "";
 
-        for (var y = 0; y < this.size; y++) {
+        for (let y = 0; y < 9; y++) {
             str += "<tr>";
-            for (var x = 0; x < this.size; x++) 
+            for (let x = 0; x < 9; x++)
                 if (this.board[y][x].val != 0)
                     str += "<td><input type='number' data-y='" + y + "' data-x='" + x + "' value='" + this.board[y][x].val + "' disabled></td>";
-                else 
+                else
                     str += "<td><input type='number' data-y='" + y + "' data-x='" + x + "'></td>";
             str += "</tr>";
         }
@@ -114,18 +113,22 @@ class Sudoku {
         $("#field").html(str);
     }
 
+    rnd() {
+        return Math.floor(Math.random() * 9)
+    }
+
     harden() {
-        var empty = 1;
-        var copy = this.copy();
+        let empty = 1;
+        let copy = this.copy();
 
         while (this.solve(copy) && empty <= this.treshhold) {
 
-            var x = Math.floor(Math.random() * this.size);
-            var y = Math.floor(Math.random() * this.size);
+            let x = this.rnd()
+            let y = this.rnd()
 
             while (this.board[y][x].val == 0) {
-                x = Math.floor(Math.random() * this.size);
-                y = Math.floor(Math.random() * this.size);
+                x = this.rnd()
+                y = this.rnd()
             }
 
             this.board[y][x].set_val(0);
@@ -136,12 +139,12 @@ class Sudoku {
     }
 
     is_possible(board, row, col, k) {
-        for (var i = 0; i < 9; i++) {
-            const m = 3 * Math.floor(row / 3) + Math.floor(i / 3);
-            const n = 3 * Math.floor(col / 3) + i % 3;
-            if (board[row][i] == k || board[i][col] == k || board[m][n] == k) {
-              return false;
-            }
+        for (let i = 0; i < 9; i++) {
+            const v = 3 * Math.floor(row / 3)
+            const m = v + Math.floor(i / 3);
+            const n = v + i % 3;
+            if (board[row][i] == k || board[i][col] == k || board[m][n] == k)
+                return false;
         }
         return true;
     }
@@ -168,10 +171,10 @@ class Sudoku {
     }
 
     copy() {
-        var copy = [];
-        for (var y = 0; y < this.size; y++) {
+        let copy = [];
+        for (let y = 0; y < 9; y++) {
             copy[y] = [];
-            for (var x = 0; x < this.size; x++) 
+            for (let x = 0; x < 9; x++)
                 copy[y][x] = new Cell(this.board[y][x].val);
         }
         return copy;
